@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: teamcity-server-sts
+spec:
+  selector:
+    matchLabels:
+      app: teamcity-server
+  serviceName: teamcity-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: teamcity-server
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: DoesNotExist
+      containers:
+      - name: teamcity-server
+        image: "{{ .Values.image.repository }}{{with .Values.image.tag }}:{{ . }}{{ end }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 8111
+          name: teamcity
+        volumeMounts:
+        - name: teamcity-server-data-volume
+          mountPath: /data/teamcity_server/datadir
+        - name: teamcity-server-logs-volume
+          mountPath: /opt/teamcity/logs
+        resources:
+          requests:
+            cpu: 250m
+      serviceAccountName: teamcity-server-sa
+      priorityClassName: required-nonpreempting-pc
+  volumeClaimTemplates:
+  - metadata:
+      name: teamcity-server-data-volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+  - metadata:
+      name: teamcity-server-logs-volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 16Gi

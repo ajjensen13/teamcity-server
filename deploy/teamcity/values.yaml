@@ -1,0 +1,4 @@
+image:
+  repository: gcr.io/ajensen-1993/teamcity-server
+  pullPolicy: ""
+  tag: ""

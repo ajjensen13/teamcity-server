@@ -1,17 +1,10 @@
-ARG GO_VERSION=1
-ARG ALPINE_VERSION=3.11
-
-FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} as build
-ARG GCFLAGS="-c 1"
-ENV CGO_ENABLED=0
-ENV GO111MODULE=on
-WORKDIR /src/app
-COPY ./go.mod ./go.sum ./
-RUN go mod download
-COPY . .
-RUN go test -json ./...
-RUN go build -i -gcflags "$GCFLAGS" -o /bin/program ./cmd/program
-
-FROM alpine:${ALPINE_VERSION} as run
-COPY --from=build /bin/program /bin/program
-ENTRYPOINT /bin/program
+FROM jetbrains/teamcity-server
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y gnupg
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" \
+    | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl -# https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - \
+    && apt-get update -y
+RUN apt-get install google-cloud-sdk -y
+COPY ./build/postgresql-42.2.12.jar /usr/local/lib/postgresql-42.2.12.jar
+COPY ./build/copy-jdbc-lib.sh /services/copy-jdbc-lib.sh
