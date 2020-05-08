@@ -34,7 +34,8 @@ spec:
           mountPath: /opt/teamcity/logs
         resources:
           requests:
-            cpu: 250m
+            cpu: 100m
+            memory: 500Mi
       serviceAccountName: teamcity-server-sa
       priorityClassName: required-nonpreempting-pc
   volumeClaimTemplates:
