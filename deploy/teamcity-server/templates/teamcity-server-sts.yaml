@@ -36,6 +36,11 @@ spec:
           requests:
             cpu: 100m
             memory: 500Mi
+        livenessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 60
+          httpGet:
+            port: 8111
       serviceAccountName: teamcity-server-sa
       priorityClassName: required-nonpreempting-pc
   volumeClaimTemplates:
