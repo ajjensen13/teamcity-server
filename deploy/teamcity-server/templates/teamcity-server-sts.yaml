@@ -42,7 +42,7 @@ spec:
           httpGet:
             port: 8111
       serviceAccountName: teamcity-server-sa
-      priorityClassName: required-nonpreempting-pc
+      priorityClassName: required-preempting-pc
   volumeClaimTemplates:
   - metadata:
       name: teamcity-server-data-volume
