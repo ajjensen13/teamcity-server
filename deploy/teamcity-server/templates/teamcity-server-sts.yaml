@@ -20,6 +20,19 @@ spec:
             - matchExpressions:
               - key: cloud.google.com/gke-preemptible
                 operator: DoesNotExist
+      initContainers:
+      - name: teamcity-server-datadir-chown-init
+        image: busybox
+        command: ["chown", "-R", "1000:1000", "/data/teamcity_server/datadir" ]
+        volumeMounts:
+        - name: teamcity-server-data-volume
+          mountPath: /data/teamcity_server/datadir
+      - name: teamcity-server-logs-chown-init
+        image: busybox
+        command: ["chown", "-R", "1000:1000", "/opt/teamcity/logs"]
+        volumeMounts:
+        - name: teamcity-server-logs-volume
+          mountPath: /opt/teamcity/logs
       containers:
       - name: teamcity-server
         image: "{{ .Values.image.repository }}{{ with .Values.image.tag }}:{{ . }}{{ end }}{{ with .Values.image.digest }}@{{ . }}{{ end }}"
